@@ -1,0 +1,24 @@
+# OS metadata
+.DS_Store
+Thumbs.db
+
+# Editors
+.vscode/
+.idea/
+
+# Local Go/build caches
+.gocache/
+
+# Local binaries built from the repo root
+/az-port
+/az-port.exe
+/az-port-macos
+
+# Release and coverage artifacts
+/dist/
+coverage.out
+*.coverprofile
+*.test
+
+# Local tool data
+/.az-port/
