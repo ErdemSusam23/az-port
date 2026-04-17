@@ -256,6 +256,28 @@ GitHub Actions builds tagged releases for:
 
 Each release publishes packaged binaries plus `checksums.txt`.
 
+### CI
+
+GitHub Actions also runs cross-platform verification on push and pull request:
+
+- Ubuntu
+- Windows
+- macOS
+
+The CI workflow runs `go test ./...` and `go build ./...`.
+
+### Cutting a Release
+
+Maintainer release steps are documented in [docs/RELEASING.md](docs/RELEASING.md).
+
+In short:
+
+```bash
+git tag -a v0.1.0 -m "v0.1.0"
+git push origin main
+git push origin v0.1.0
+```
+
 ## Project Structure
 
 ```text
