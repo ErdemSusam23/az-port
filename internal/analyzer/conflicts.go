@@ -1,6 +1,8 @@
 package analyzer
 
 import (
+	"net"
+
 	"github.com/ErdemSusam23/az-port/internal/models"
 )
 
@@ -27,9 +29,15 @@ func DetectConflicts(entries []models.PortEntry) []models.ConflictReport {
 		uniquePIDs := uniquePIDs(portEntries)
 		switch {
 		case len(uniquePIDs) > 1:
-			report.HasConflict = true
-			report.Kind = models.RealConflictKind
-			report.RiskLevel = calculateRiskLevel(portEntries, port)
+			if hasAddressConflict(portEntries) {
+				report.HasConflict = true
+				report.Kind = models.RealConflictKind
+				report.RiskLevel = calculateRiskLevel(portEntries, port)
+			} else {
+				report.HasConflict = false
+				report.Kind = models.CooperativeKind
+				report.RiskLevel = models.Low
+			}
 		case len(portEntries) > 1:
 			report.HasConflict = false
 			report.Kind = models.SharedProcessKind
@@ -108,6 +116,57 @@ func isConflictEligible(entry models.PortEntry) bool {
 	}
 
 	return entry.State == models.Listening
+}
+
+func extractIP(localAddress string) net.IP {
+	host, _, err := net.SplitHostPort(localAddress)
+	if err != nil {
+		host = localAddress
+	}
+	return net.ParseIP(host)
+}
+
+func addressesOverlap(addr1, addr2 string) bool {
+	ip1 := extractIP(addr1)
+	ip2 := extractIP(addr2)
+	if ip1 == nil || ip2 == nil {
+		return true
+	}
+	isIPv4_1 := ip1.To4() != nil
+	isIPv4_2 := ip2.To4() != nil
+	if isIPv4_1 != isIPv4_2 {
+		return false
+	}
+	if ip1.IsUnspecified() && ip2.IsUnspecified() {
+		return true
+	}
+	if ip1.IsUnspecified() || ip2.IsUnspecified() {
+		return false
+	}
+	return ip1.Equal(ip2)
+}
+
+func hasAddressConflict(entries []models.PortEntry) bool {
+	byPID := make(map[int][]string)
+	for _, e := range entries {
+		byPID[e.PID] = append(byPID[e.PID], e.LocalAddress)
+	}
+	pids := make([]int, 0, len(byPID))
+	for pid := range byPID {
+		pids = append(pids, pid)
+	}
+	for i := 0; i < len(pids); i++ {
+		for j := i + 1; j < len(pids); j++ {
+			for _, a := range byPID[pids[i]] {
+				for _, b := range byPID[pids[j]] {
+					if addressesOverlap(a, b) {
+						return true
+					}
+				}
+			}
+		}
+	}
+	return false
 }
 
 func uniquePIDs(entries []models.PortEntry) map[int]struct{} {

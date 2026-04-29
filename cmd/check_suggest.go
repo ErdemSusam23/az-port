@@ -169,6 +169,9 @@ func buildPortFinding(port int, entries []models.PortEntry, conflict *models.Con
 		finding.Status = models.PortStatusRealConflict
 		finding.RiskLevel = conflict.RiskLevel
 		finding.Message = fmt.Sprintf("Port %d has a real conflict", port)
+	case conflict != nil && conflict.Kind == models.CooperativeKind:
+		finding.Status = models.PortStatusCooperative
+		finding.Message = fmt.Sprintf("Port %d has cooperative bindings (no real conflict)", port)
 	case conflict != nil && conflict.Kind == models.SharedProcessKind:
 		finding.Status = models.PortStatusSharedProcess
 		finding.Message = fmt.Sprintf("Port %d is used by the same process on multiple addresses", port)
@@ -191,6 +194,7 @@ func summarizeFindings(findings []models.PortFinding) string {
 		models.PortStatusAvailable,
 		models.PortStatusInUse,
 		models.PortStatusSharedProcess,
+		models.PortStatusCooperative,
 		models.PortStatusRealConflict,
 		models.PortStatusSuggested,
 	} {

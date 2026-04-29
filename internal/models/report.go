@@ -7,6 +7,7 @@ const (
 	NoConflictKind     ConflictKind = "NONE"
 	SharedProcessKind  ConflictKind = "SHARED_PROCESS"
 	RealConflictKind   ConflictKind = "REAL_CONFLICT"
+	CooperativeKind    ConflictKind = "COOPERATIVE"
 )
 
 // ConflictReport represents a port conflict analysis result
@@ -25,6 +26,7 @@ const (
 	PortStatusAvailable     PortStatus = "available"
 	PortStatusInUse         PortStatus = "in_use"
 	PortStatusSharedProcess PortStatus = "shared_process"
+	PortStatusCooperative   PortStatus = "cooperative"
 	PortStatusRealConflict  PortStatus = "real_conflict"
 	PortStatusSuggested     PortStatus = "suggested"
 )

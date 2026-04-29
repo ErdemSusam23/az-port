@@ -95,6 +95,12 @@ func buildPortStatusMessage(port int, entries []models.PortEntry, report *models
 			fmt.Fprintf(&b, "  - %s (PID: %d)\n", displayProcessName(summary.ProcessName), summary.PID)
 			fmt.Fprintf(&b, "    Addresses: %s\n", strings.Join(summary.Addresses, ", "))
 		}
+	case report != nil && report.Kind == models.CooperativeKind:
+		b.WriteString("  Cooperative binding (no real conflict)\n")
+		for _, summary := range summaries {
+			fmt.Fprintf(&b, "  - %s (PID: %d)\n", displayProcessName(summary.ProcessName), summary.PID)
+			fmt.Fprintf(&b, "    Addresses: %s\n", strings.Join(summary.Addresses, ", "))
+		}
 	case report != nil && report.Kind == models.SharedProcessKind:
 		summary := summaries[0]
 		fmt.Fprintf(&b, "  In use by %s (PID: %d)\n", displayProcessName(summary.ProcessName), summary.PID)
